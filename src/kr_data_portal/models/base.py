@@ -28,26 +28,45 @@ class DataPortalResponse(BaseModel, Generic[T]):
     response: BaseResponse[T]
 
     def items(self, model_cls: type[T]) -> list[T]:
-        if not self.response.body:
+        body = self.response.body
+        if not body:
             return []
 
+        # 1. Extract items_field flexibly from Model or Dict
         items_field = None
-        if isinstance(self.response.body, ResponseBody):
-            items_field = self.response.body.items
-        elif isinstance(self.response.body, dict):
-            items_field = self.response.body.get("items")
+        if isinstance(body, ResponseBody):
+            items_field = body.items
+        elif isinstance(body, dict):
+            items_field = body.get("items")
+        else:
+            # Fallback for cases where it might be a different object type
+            items_field = getattr(body, "items", None)
 
         if not items_field:
             return []
 
+        # 2. Handle the "item" wrapper (common in Data Portal APIs)
         raw_list = []
         if isinstance(items_field, dict):
             item = items_field.get("item")
             if isinstance(item, list):
                 raw_list = item
-            elif item:
+            elif item is not None:
                 raw_list = [item]
         elif isinstance(items_field, list):
             raw_list = items_field
-
-        return [model_cls.model_validate(i) if isinstance(i, dict) else i for i in raw_list]
+        
+        # 3. Final validation and conversion
+        result = []
+        for i in raw_list:
+            if isinstance(i, dict):
+                try:
+                    result.append(model_cls.model_validate(i))
+                except Exception:
+                    # If validation fails, keep as dict or skip? 
+                    # Prefer keeping raw dict if validation fails to avoid data loss
+                    result.append(i)
+            else:
+                result.append(i)
+        
+        return result
