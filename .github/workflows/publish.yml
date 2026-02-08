@@ -6,8 +6,9 @@ on:
       - main
       - master
     paths:
-      - 'kr-data-portal-client/src/**'
-      - 'kr-data-portal-client/pyproject.toml'
+      - 'src/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
 
 jobs:
   publish:
