@@ -3,6 +3,13 @@
 name = "kr-data-portal-client"
 version = "0.1.0"
 description = "South Korea Public Data Portal (data.go.kr) Async Python Client"
+authors = [
+    { name = "Minty Kim", email = "mintykim00@gmail.com" },
+    { name = "StatPan", email = "dlfrnaos19@gmail.com" }
+]
+maintainers = [
+    { name = "Minty Kim", email = "mintykim00@gmail.com" }
+]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
