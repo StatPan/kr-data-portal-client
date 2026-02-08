@@ -16,6 +16,10 @@ Production-ready, async-first Python client for the KR Public Data Portal (ê³µê³
 pip install kr-data-portal-client
 ```
 
+> [!IMPORTANT]
+> **Recommended Version: 0.1.8+**  
+> Previous versions (0.1.7 and below) are considered deprecated (yanked) due to critical API encoding and consistency issues. Version 0.1.8 introduces a custom URL construction logic to properly handle Service Key encoding requirements of the KR Public Data Portal.
+
 ## Quick Start
 
 ```python
@@ -59,8 +63,12 @@ python scripts/generate_client.py
 ### Running Tests
 
 ```bash
-pytest tests/
+uv run pytest
 ```
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests. We use [Conventional Commits](https://www.conventionalcommits.org/) for automated release management.
 
 ## License
 

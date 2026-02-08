@@ -34,3 +34,9 @@ jobs:
       - name: Run tests
         run: |
           uv run pytest
+
+      - name: Run Integration Tests (Mocked or Real)
+        env:
+          DATA_PORTAL_SERVICE_KEY: ${{ secrets.DATA_PORTAL_SERVICE_KEY }}
+        run: |
+          uv run pytest tests/test_integration.py

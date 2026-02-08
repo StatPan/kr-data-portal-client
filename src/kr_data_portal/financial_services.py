@@ -13,8 +13,24 @@ from .models.financial_services import (
 class FinancialClient(DataPortalClient):
     """APIs for stock, ETF, ETN, and derivatives prices from FSC.
 
-    Base URL: http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService
+    Base URL: https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService
     """
+
+    def __init__(
+        self,
+        service_key: str,
+        requests_per_second: float = 10.0,
+        timeout: float = 30.0,
+        use_retry: bool = False,
+        max_retries: int = 3,
+    ):
+        super().__init__(
+            service_key=service_key,
+            requests_per_second=requests_per_second,
+            timeout=timeout,
+            use_retry=use_retry,
+            max_retries=max_retries,
+        )
 
     async def getStockPriceInfo(
         self,
@@ -33,19 +49,12 @@ class FinancialClient(DataPortalClient):
         - Timing: After market close (16:00 KST)
 
         Args:
-
             numOfRows (int): 한 페이지 결과 수
-
             pageNo (int): 페이지 번호
-
             basDt (str): 기준일자 (YYYYMMDD)
-
             itmsNm (str): 종목명
-
             crno (str): 법인등록번호
-
             stckIssuItmsNm (str): 주식발행종목명
-
             **kwargs: Additional request parameters.
 
         Returns:
@@ -63,7 +72,7 @@ class FinancialClient(DataPortalClient):
         params.update(kwargs)
 
         data = await self._request(
-            "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo",
+            "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo",
             params={k: v for k, v in params.items() if v is not None},
         )
         return DataPortalResponse[StockPriceInfoItem].model_validate(data)
@@ -78,20 +87,11 @@ class FinancialClient(DataPortalClient):
     ) -> DataPortalResponse[EtfPriceInfoItem]:
         """ETF시세정보를 조회하는 서비스입니다.
 
-        Data Update Policy:
-        - Cycle: Daily
-        - Timing: After market close (16:00 KST)
-
         Args:
-
             numOfRows (int): No description
-
             pageNo (int): No description
-
             basDt (str): No description
-
             itmsNm (str): No description
-
             **kwargs: Additional request parameters.
 
         Returns:
@@ -107,7 +107,7 @@ class FinancialClient(DataPortalClient):
         params.update(kwargs)
 
         data = await self._request(
-            "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetEtfPriceInfo",
+            "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetEtfPriceInfo",
             params={k: v for k, v in params.items() if v is not None},
         )
         return DataPortalResponse[EtfPriceInfoItem].model_validate(data)
@@ -122,20 +122,11 @@ class FinancialClient(DataPortalClient):
     ) -> DataPortalResponse[EtnPriceInfoItem]:
         """ETN시세정보를 조회하는 서비스입니다.
 
-        Data Update Policy:
-        - Cycle: Daily
-        - Timing: After market close (16:00 KST)
-
         Args:
-
             numOfRows (int): No description
-
             pageNo (int): No description
-
             basDt (str): No description
-
             itmsNm (str): No description
-
             **kwargs: Additional request parameters.
 
         Returns:
@@ -151,7 +142,7 @@ class FinancialClient(DataPortalClient):
         params.update(kwargs)
 
         data = await self._request(
-            "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetEtnPriceInfo",
+            "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetEtnPriceInfo",
             params={k: v for k, v in params.items() if v is not None},
         )
         return DataPortalResponse[EtnPriceInfoItem].model_validate(data)
@@ -166,20 +157,11 @@ class FinancialClient(DataPortalClient):
     ) -> DataPortalResponse[DerivativesPriceInfoItem]:
         """파생상품시세정보를 조회하는 서비스입니다.
 
-        Data Update Policy:
-        - Cycle: Daily
-        - Timing: After market close (16:00 KST)
-
         Args:
-
             numOfRows (int): No description
-
             pageNo (int): No description
-
             basDt (str): No description
-
             itmsNm (str): No description
-
             **kwargs: Additional request parameters.
 
         Returns:
@@ -195,7 +177,7 @@ class FinancialClient(DataPortalClient):
         params.update(kwargs)
 
         data = await self._request(
-            "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetDerivativesPriceInfo",
+            "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getGetDerivativesPriceInfo",
             params={k: v for k, v in params.items() if v is not None},
         )
         return DataPortalResponse[DerivativesPriceInfoItem].model_validate(data)

@@ -11,12 +11,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras
+
+      - name: Run Integration Tests
+        env:
+          DATA_PORTAL_SERVICE_KEY: ${{ secrets.DATA_PORTAL_SERVICE_KEY }}
+        run: |
+          # If key is missing, this will skip (as defined in the test), 
+          # but we want to ENSURE it passes if key is present.
+          uv run pytest tests/test_integration.py
+
   publish:
     runs-on: ubuntu-latest
+    needs: validate
     permissions:
       contents: write
       id-token: write
-    if: "!contains(github.event.head_commit.message, 'chore: bump version')"
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,22 +63,22 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install semver
           uv sync --all-extras
 
       - name: Bump version
         id: bump
         run: |
-          # Get current version
-          CURRENT_VERSION=$(grep -m 1 "version =" pyproject.toml | tr -d '"' | awk '{print $3}')
+          # Use uv to bump version
+          CURRENT_VERSION=$(uv project version)
           echo "Current version: $CURRENT_VERSION"
           
-          # Simple patch bump
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          NEW_VERSION="$major.$minor.$((patch + 1))"
+          # Use python to calculate next patch version
+          NEW_VERSION=$(python3 -c "import semver; v = semver.VersionInfo.parse('$CURRENT_VERSION'); print(v.bump_patch())")
           echo "New version: $NEW_VERSION"
           
-          # Update pyproject.toml (using sed for simplicity in GHA)
-          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+          # Update version in pyproject.toml
+          uv project version "$NEW_VERSION"
           
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
@@ -72,3 +100,20 @@ jobs:
           packages-dir: dist/
           password: ${{ secrets.PYPI_API_TOKEN }}
           print-hash: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.bump.outputs.new_version }}
+          name: Release v${{ steps.bump.outputs.new_version }}
+          body: |
+            ## What's Changed
+            Automated release for version ${{ steps.bump.outputs.new_version }}.
+            
+            Full Changelog: [v${{ steps.bump.outputs.new_version }}](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.bump.outputs.new_version }})
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

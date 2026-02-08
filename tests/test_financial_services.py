@@ -45,6 +45,34 @@ async def test_get_stock_price_info(mock_client):
 
 
 @pytest.mark.asyncio
+async def test_get_stock_price_info_samsung_20260205(mock_client):
+    """Test with real data from 2026-02-05 for Samsung Electronics."""
+    mock_response = {
+        "response": {
+            "header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+            "body": {
+                "items": {"item": [{"itmsNm": "삼성전자", "clpr": "159300", "basDt": "20260205"}]},
+                "numOfRows": 1,
+                "pageNo": 1,
+                "totalCount": 1,
+            },
+        }
+    }
+
+    with patch.object(mock_client, "_request", new_callable=AsyncMock) as mock_req:
+        mock_req.return_value = mock_response
+
+        response = await mock_client.getStockPriceInfo(itmsNm="삼성전자", basDt="20260205")
+
+        assert response.response.header.resultCode == "00"
+        items = response.items(StockPriceInfoItem)
+        assert len(items) == 1
+        assert items[0].itmsNm == "삼성전자"
+        assert items[0].clpr == "159300"
+        assert items[0].basDt == "20260205"
+
+
+@pytest.mark.asyncio
 async def test_get_etf_price_info(mock_client):
     mock_response = {
         "response": {
