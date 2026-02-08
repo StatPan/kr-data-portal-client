@@ -1,51 +1,114 @@
-service_name: "Financial Services Commission - Stock Price Information"
-base_url: "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService"
-description: "금융위원회 주식시세정보 API. 상장 주식, 수익증권, 신주인수권증권, 신주인수권증서의 시세 정보를 제공합니다."
-update_policy:
-  refresh_cycle: "Daily (1 per day)"
-  update_timing: "After 13:00 (1 PM) on the next business day (e.g., Friday's data updates on Monday)."
-  scheduling_hint: "Schedule Airflow DAGs to run after 13:00 KST on business days (T+1)."
+info:
+  title: Financial Services Commission - Stock Price Info
+  description: APIs for stock, ETF, ETN, and derivatives prices from FSC.
+  version: 1.0.0
+  base_url: http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService
 
-endpoints:
-  getStockPriceInfo:
-    path: "/getStockPriceInfo"
-    method: "GET"
-    description: "주식 시세 정보를 조회합니다."
+services:
+  - name: getStockPriceInfo
+    path: /getStockPriceInfo
+    description: 주식시세정보를 조회하는 서비스입니다.
+    update_policy:
+      cycle: Daily
+      timing: After market close (16:00 KST)
     parameters:
-      serviceKey: { type: "string", required: true, description: "공공데이터포털에서 발급받은 인증키" }
-      numOfRows: { type: "integer", required: false, default: 10, description: "한 페이지 결과 수" }
-      pageNo: { type: "integer", required: false, default: 1, description: "페이지 번호" }
-      resultType: { type: "string", required: false, default: "json", description: "구분 (xml, json)" }
-      basDt: { type: "string", required: false, description: "기준일자 (YYYYMMDD)" }
-      beginBasDt: { type: "string", required: false, description: "검색시작 일자 (YYYYMMDD)" }
-      endBasDt: { type: "string", required: false, description: "검색종료 일자 (YYYYMMDD)" }
-      likeItmsNm: { type: "string", required: false, description: "종목명 (부분일치)" }
-      itmsNm: { type: "string", required: false, description: "종목명 (완전일치)" }
-      isinCd: { type: "string", required: false, description: "ISIN코드" }
-      mrktCtg: { type: "string", required: false, description: "시장구분 (KOSPI/KOSDAQ/KONEX)" }
+      - name: serviceKey
+        type: str
+        required: true
+        description: 공공데이터포털에서 발급받은 인증키
+      - name: numOfRows
+        type: int
+        default: 10
+        description: 한 페이지 결과 수
+      - name: pageNo
+        type: int
+        default: 1
+        description: 페이지 번호
+      - name: resultType
+        type: str
+        default: json
+        description: 구분 (xml, json)
+      - name: basDt
+        type: str
+        description: 기준일자 (YYYYMMDD)
+      - name: itmsNm
+        type: str
+        description: 종목명
+      - name: crno
+        type: str
+        description: 법인등록번호
+      - name: stckIssuItmsNm
+        type: str
+        description: 주식발행종목명
 
-  getBeneficiaryCertificatePriceInfo:
-    path: "/getBeneficiaryCertificatePriceInfo"
-    method: "GET"
-    description: "수익증권 시세 정보를 조회합니다."
-    parameters: &common_params
-      serviceKey: { type: "string", required: true }
-      numOfRows: { type: "integer", required: false, default: 10 }
-      pageNo: { type: "integer", required: false, default: 1 }
-      resultType: { type: "string", required: false, default: "json" }
-      basDt: { type: "string", required: false }
-      beginBasDt: { type: "string", required: false }
-      endBasDt: { type: "string", required: false }
-      itmsNm: { type: "string", required: false }
+  - name: getEtfPriceInfo
+    path: /getGetEtfPriceInfo
+    description: ETF시세정보를 조회하는 서비스입니다.
+    update_policy:
+      cycle: Daily
+      timing: After market close (16:00 KST)
+    parameters:
+      - name: serviceKey
+        type: str
+        required: true
+      - name: numOfRows
+        type: int
+        default: 10
+      - name: pageNo
+        type: int
+        default: 1
+      - name: resultType
+        type: str
+        default: json
+      - name: basDt
+        type: str
+      - name: itmsNm
+        type: str
 
-  getPreemptiveRightCertificatePriceInfo:
-    path: "/getPreemptiveRightCertificatePriceInfo"
-    method: "GET"
-    description: "신주인수권증권 시세 정보를 조회합니다."
-    parameters: *common_params
+  - name: getEtnPriceInfo
+    path: /getGetEtnPriceInfo
+    description: ETN시세정보를 조회하는 서비스입니다.
+    update_policy:
+      cycle: Daily
+      timing: After market close (16:00 KST)
+    parameters:
+      - name: serviceKey
+        type: str
+        required: true
+      - name: numOfRows
+        type: int
+        default: 10
+      - name: pageNo
+        type: int
+        default: 1
+      - name: resultType
+        type: str
+        default: json
+      - name: basDt
+        type: str
+      - name: itmsNm
+        type: str
 
-  getPreemptiveRightWarrantPriceInfo:
-    path: "/getPreemptiveRightWarrantPriceInfo"
-    method: "GET"
-    description: "신주인수권증서 시세 정보를 조회합니다."
-    parameters: *common_params
+  - name: getDerivativesPriceInfo
+    path: /getGetDerivativesPriceInfo
+    description: 파생상품시세정보를 조회하는 서비스입니다.
+    update_policy:
+      cycle: Daily
+      timing: After market close (16:00 KST)
+    parameters:
+      - name: serviceKey
+        type: str
+        required: true
+      - name: numOfRows
+        type: int
+        default: 10
+      - name: pageNo
+        type: int
+        default: 1
+      - name: resultType
+        type: str
+        default: json
+      - name: basDt
+        type: str
+      - name: itmsNm
+        type: str

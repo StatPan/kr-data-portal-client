@@ -1,0 +1,74 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'kr-data-portal-client/src/**'
+      - 'kr-data-portal-client/pyproject.toml'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore: bump version')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "kr-data-portal-client/pyproject.toml"
+
+      - name: Install dependencies
+        run: |
+          cd kr-data-portal-client
+          uv sync --all-extras
+
+      - name: Bump version
+        id: bump
+        run: |
+          cd kr-data-portal-client
+          # Get current version
+          CURRENT_VERSION=$(grep -m 1 "version =" pyproject.toml | tr -d '"' | awk '{print $3}')
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Simple patch bump
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$minor.$((patch + 1))"
+          echo "New version: $NEW_VERSION"
+          
+          # Update pyproject.toml (using sed for simplicity in GHA)
+          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and push version bump
+        run: |
+          cd kr-data-portal-client
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pyproject.toml
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
+          git push
+
+      - name: Build package
+        run: |
+          cd kr-data-portal-client
+          uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: kr-data-portal-client/dist/
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          print-hash: true

@@ -1,4 +1,2 @@
-__version__ = "0.1.0"
-from .client import StockPriceClient as DataPortalClient
-
-__all__ = ["DataPortalClient"]
+def hello() -> str:
+    return "Hello from kr-data-portal-client!"

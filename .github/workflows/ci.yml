@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "kr-data-portal-client/pyproject.toml"
+
+      - name: Install dependencies
+        run: |
+          cd kr-data-portal-client
+          uv sync --frozen --all-extras
+
+      - name: Run lint
+        run: |
+          cd kr-data-portal-client
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Run tests
+        run: |
+          cd kr-data-portal-client
+          uv run pytest
