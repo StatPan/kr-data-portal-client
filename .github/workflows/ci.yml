@@ -20,20 +20,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: "kr-data-portal-client/pyproject.toml"
+          python-version-file: "pyproject.toml"
 
       - name: Install dependencies
         run: |
-          cd kr-data-portal-client
           uv sync --frozen --all-extras
 
       - name: Run lint
         run: |
-          cd kr-data-portal-client
           uv run ruff check .
           uv run ruff format --check .
 
       - name: Run tests
         run: |
-          cd kr-data-portal-client
           uv run pytest

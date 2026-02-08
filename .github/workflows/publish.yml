@@ -27,17 +27,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: "kr-data-portal-client/pyproject.toml"
+          python-version-file: "pyproject.toml"
 
       - name: Install dependencies
         run: |
-          cd kr-data-portal-client
           uv sync --all-extras
 
       - name: Bump version
         id: bump
         run: |
-          cd kr-data-portal-client
           # Get current version
           CURRENT_VERSION=$(grep -m 1 "version =" pyproject.toml | tr -d '"' | awk '{print $3}')
           echo "Current version: $CURRENT_VERSION"
@@ -54,7 +52,6 @@ jobs:
 
       - name: Commit and push version bump
         run: |
-          cd kr-data-portal-client
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add pyproject.toml
@@ -63,12 +60,11 @@ jobs:
 
       - name: Build package
         run: |
-          cd kr-data-portal-client
           uv build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: kr-data-portal-client/dist/
+          packages-dir: dist/
           password: ${{ secrets.PYPI_API_TOKEN }}
           print-hash: true
