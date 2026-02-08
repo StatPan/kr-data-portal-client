@@ -1,0 +1,41 @@
+
+[project]
+name = "kr-data-portal-client"
+version = "0.1.0"
+description = "South Korea Public Data Portal (data.go.kr) Async Python Client"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pyyaml>=6.0.1",
+    "jinja2>=3.1.3",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
+    "pre-commit>=3.7.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "PT", "RET", "SIM", "CHK", "ARG", "PTH"]
+ignore = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.semantic_release]
+version_variable = "src/kr_data_portal/__init__.py:__version__"
+version_toml = ["project.version"]
+major_on_zero = false
+build_command = "uv build"
+
+[tool.semantic_release.branches.main]
+match = "main"
