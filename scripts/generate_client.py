@@ -1,11 +1,10 @@
 
 import jinja2
 import yaml
-from pathlib import Path
 
 # StatPan's dart-api-client inspired generator stub
 def generate():
-    with open("specs/financial_services.yaml", "r", encoding="utf-8") as f:
+    with open("specs/financial_services.yaml", encoding="utf-8") as f:
         spec = yaml.safe_load(f)
     
     template_str = """

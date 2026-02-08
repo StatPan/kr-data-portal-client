@@ -1,6 +1,5 @@
 
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, patch
 from kr_data_portal.client import DataPortalClient
 
