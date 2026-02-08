@@ -1,6 +1,10 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "kr-data-portal-client"
-version = "0.1.2"
+version = "0.1.4"
 description = "High-quality Python client for KR Public Data Portal"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,6 +23,9 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "pre-commit>=3.6.0",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kr_data_portal"]
 
 [tool.ruff]
 line-length = 100
